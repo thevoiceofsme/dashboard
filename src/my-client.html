@@ -4,6 +4,7 @@
 <link rel="import" href="../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-toggle-button/paper-toggle-button.html">
 
 <link rel="import" href="elements/hx-current-order.html">
 <link rel="import" href="elements/hx-amount.html">
@@ -67,7 +68,7 @@
             }
 
             .menu-item {
-                min-width: 500px;
+                min-width: 300px;
                 max-width: 610px;
                 height: 315px;
                 margin: 10px;
@@ -114,9 +115,6 @@
             .qr-image {
                 width: 200px;
                 height: 200px;
-            }
-
-            #order, #qr {
             }
 
             h1.pay-card{
@@ -180,7 +178,7 @@
                 <paper-material elevation="1" class="menu-item" id="qr">
                     <h1 class="pay-card">Pay by QR Code</h1>
                     <img class="qr-image" src="../images/static_qr_code.jpg" on-tap="pay">
-                    <paper-button on-tap="pay"></paper-button>
+                    <paper-button on-tap="pay">Henk</paper-button>
                 </paper-material>
 
 
@@ -212,6 +210,7 @@
                 </div>
             </template>
 
+            <paper-toggle-button on-tap="toggleReload"></paper-toggle-button>
         </div>
 
     </template>
@@ -268,8 +267,16 @@
                 this.lastOrderData = {key: maxKey, value: maxData};
                 this.ordersData = data.detail.response;
 
+                this.reloadNow();
+            }
 
-                //Polymer.Async.timeOut.after(1000).run(() => this.$.ajax.generateRequest());
+            reloadNow() {
+                if (this.reload) {
+                    Polymer.Async.timeOut.after(500).run(() => {
+                            this.$.ajax.generateRequest()
+                        }
+                    );
+                }
             }
 
             computeShowQR() {
@@ -291,11 +298,20 @@
                     return acc + order.totalPrice;
                 }, 0));
 
-                this.orderPaid = this.content.value[0].paid;
+                this.orderPaid = this.lastOrderData.value[0].paid;
             }
 
             pay(e){
                 this.$.paycall.generateRequest();
+            }
+
+            toggleReload() {
+                if (this.reload) {
+                    this.reload = !this.reload;
+                } else {
+                    this.reload = true;
+                }
+                this.reloadNow();
             }
         }
 
